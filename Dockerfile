@@ -41,8 +41,13 @@ RUN cp .env.example .env 2>/dev/null || echo "APP_NAME=FleetCart" > .env
 RUN git config --global url."https://github.com/".insteadOf git@github.com:
 RUN git config --global url."https://".insteadOf git://
 
-# Install PHP deps (remove --no-scripts to ensure all packages are properly registered)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs
+# Install PHP deps with --no-scripts to avoid the missing service provider issue
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs --no-scripts
+
+# Clear any cached config and run package discovery
+RUN php artisan config:clear || true
+RUN php artisan cache:clear || true
+RUN php artisan package:discover --ansi || true
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www
