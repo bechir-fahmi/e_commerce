@@ -42,7 +42,7 @@ RUN git config --global url."https://github.com/".insteadOf git@github.com: && \
 RUN cp .env.example .env 2>/dev/null || echo "APP_NAME=FleetCart" > .env
 
 # Install PHP dependencies (IMPORTANT: NO --no-scripts)
-RUN composer install --no-dev --no-interaction --prefer-dist --ignore-platform-reqs
+RUN composer install --no-dev --no-interaction --ignore-platform-reqs
 
 # Autoload optimization & Laravel setup
 RUN composer dump-autoload --optimize && \
