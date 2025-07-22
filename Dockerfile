@@ -41,13 +41,19 @@ RUN cp .env.example .env 2>/dev/null || echo "APP_NAME=FleetCart" > .env
 RUN git config --global url."https://github.com/".insteadOf git@github.com:
 RUN git config --global url."https://".insteadOf git://
 
-# Install PHP deps
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs --no-scripts
+# Install PHP deps (remove --no-scripts to ensure all packages are properly registered)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www
-RUN chmod -R 755 /var/www/storage
-RUN chmod -R 755 /var/www/bootstrap/cache
+RUN chmod -R 775 /var/www/storage
+RUN chmod -R 775 /var/www/bootstrap/cache
+
+# Ensure log directory exists and has proper permissions
+RUN mkdir -p /var/www/storage/logs
+RUN touch /var/www/storage/logs/laravel.log
+RUN chown -R www-data:www-data /var/www/storage/logs
+RUN chmod -R 775 /var/www/storage/logs
 
 # Generate Laravel key if APP_KEY is not set
 RUN php artisan key:generate --no-interaction || true
