@@ -40,11 +40,12 @@ RUN git config --global url."https://github.com/".insteadOf git@github.com: && \
 
 # Copy or fallback to default .env
 RUN cp .env.example .env 2>/dev/null || echo "APP_NAME=FleetCart" > .env
-# Configure Composer to add the maatwebsite repo (if not already in composer.json)
-RUN composer config repositories.sidebar vcs https://github.com/Maatwebsite/Laravel-Sidebar
-
-# Require the sidebar package explicitly
-RUN composer require maatwebsite/laravel-sidebar:dev-master --no-interaction
+# Install sidebar package manually to avoid Git authentication issues
+RUN mkdir -p /var/www/packages
+RUN git clone https://github.com/Maatwebsite/Laravel-Sidebar.git /tmp/sidebar \
+    && mv /tmp/sidebar /var/www/packages/laravel-sidebar \
+    && composer config repositories.sidebar path ./packages/laravel-sidebar \
+    && composer require maatwebsite/laravel-sidebar:dev-master --no-interaction
 # Install PHP dependencies (IMPORTANT: NO --no-scripts)
 RUN composer install --no-dev --no-interaction --ignore-platform-reqs
 
